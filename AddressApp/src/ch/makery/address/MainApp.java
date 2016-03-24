@@ -24,6 +24,7 @@ import ch.makery.address.model.Person;
 import ch.makery.address.model.PersonListWrapper;
 import ch.makery.address.view.PersonEditDialogController;
 import ch.makery.address.view.PersonOverviewController;
+import ch.makery.address.view.RootLayoutController;
 
 public class MainApp extends Application {
 
@@ -78,7 +79,8 @@ public class MainApp extends Application {
 	}
 
 	/**
-	 * Inicializa o root layout (layout base).
+	 * Inicializa o root layout e tenta carregar o último arquivo de pessoa
+	 * aberto.
 	 */
 	public void initRootLayout() {
 		try {
@@ -87,12 +89,23 @@ public class MainApp extends Application {
 			loader.setLocation(MainApp.class.getResource("view/RootLayout.fxml"));
 			rootLayout = (BorderPane) loader.load();
 
-			// Mostra a scene (cena) contendo oroot layout.
+			// Mostra a scene (cena) contendo o root layout.
 			Scene scene = new Scene(rootLayout);
 			primaryStage.setScene(scene);
+
+			// Dá ao controller o acesso ao main app.
+			RootLayoutController controller = loader.getController();
+			controller.setMainApp(this);
+
 			primaryStage.show();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+		// Tenta carregar o último arquivo de pessoa aberto.
+		File file = getPersonFilePath();
+		if (file != null) {
+			loadPersonDataFromFile(file);
 		}
 	}
 
@@ -209,34 +222,31 @@ public class MainApp extends Application {
 			primaryStage.setTitle("AddressApp");
 		}
 	}
-	
+
 	/**
-	 * Carrega os dados da pessoa do arquivo especificado. A pessoa atual
-	 * será substituída.
+	 * Carrega os dados da pessoa do arquivo especificado. A pessoa atual será
+	 * substituída.
 	 * 
 	 * @param file
 	 */
 	public void loadPersonDataFromFile(File file) {
-	    try {
-	        JAXBContext context = JAXBContext
-	                .newInstance(PersonListWrapper.class);
-	        Unmarshaller um = context.createUnmarshaller();
+		try {
+			JAXBContext context = JAXBContext.newInstance(PersonListWrapper.class);
+			Unmarshaller um = context.createUnmarshaller();
 
-	        // Reading XML from the file and unmarshalling.
-	        PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
+			// Reading XML from the file and unmarshalling.
+			PersonListWrapper wrapper = (PersonListWrapper) um.unmarshal(file);
 
-	        personData.clear();
-	        personData.addAll(wrapper.getPersons());
+			personData.clear();
+			personData.addAll(wrapper.getPersons());
 
-	        // Save the file path to the registry.
-	        setPersonFilePath(file);
+			// Save the file path to the registry.
+			setPersonFilePath(file);
 
-	    } catch (Exception e) { // catches ANY exception
-	        Dialogs.create()
-	                .title("Erro")
-	                .masthead("Não foi possível carregar dados do arquivo:\n" 
-	                          + file.getPath()).showException(e);
-	    }
+		} catch (Exception e) { // catches ANY exception
+			Dialogs.create().title("Erro").masthead("Não foi possível carregar dados do arquivo:\n" + file.getPath())
+					.showException(e);
+		}
 	}
 
 	/**
@@ -245,26 +255,24 @@ public class MainApp extends Application {
 	 * @param file
 	 */
 	public void savePersonDataToFile(File file) {
-	    try {
-	        JAXBContext context = JAXBContext
-	                .newInstance(PersonListWrapper.class);
-	        Marshaller m = context.createMarshaller();
-	        m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+		try {
+			JAXBContext context = JAXBContext.newInstance(PersonListWrapper.class);
+			Marshaller m = context.createMarshaller();
+			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
-	        // Envolvendo nossos dados da pessoa.
-	        PersonListWrapper wrapper = new PersonListWrapper();
-	        wrapper.setPersons(personData);
+			// Envolvendo nossos dados da pessoa.
+			PersonListWrapper wrapper = new PersonListWrapper();
+			wrapper.setPersons(personData);
 
-	        // Enpacotando e salvando XML  no arquivo.
-	        m.marshal(wrapper, file);
+			// Enpacotando e salvando XML no arquivo.
+			m.marshal(wrapper, file);
 
-	        // Saalva o caminho do arquivo no registro.
-	        setPersonFilePath(file);
-	    } catch (Exception e) { // catches ANY exception
-	        Dialogs.create().title("Erro")
-	                .masthead("Não foi possível salvar os dados do arquivo:\n" 
-	                          + file.getPath()).showException(e);
-	    }
+			// Saalva o caminho do arquivo no registro.
+			setPersonFilePath(file);
+		} catch (Exception e) { // catches ANY exception
+			Dialogs.create().title("Erro").masthead("Não foi possível salvar os dados do arquivo:\n" + file.getPath())
+					.showException(e);
+		}
 	}
 
 }
