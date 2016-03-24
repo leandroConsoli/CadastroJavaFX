@@ -14,7 +14,7 @@ import javafx.scene.chart.XYChart;
 import ch.makery.address.model.Person;
 
 /**
- * O controller para a view de estatísticas de aniversário.
+ * The controller for the birthday statistics view.
  * 
  * @author Marco Jakob
  */
@@ -29,17 +29,17 @@ public class BirthdayStatisticsController {
     private ObservableList<String> monthNames = FXCollections.observableArrayList();
 
     /**
-     * Inicializa a classe controller. Eeste método é chamado automaticamente
-     * após o arquivo fxml ter sido carregado.
+     * Initializes the controller class. This method is automatically called
+     * after the fxml file has been loaded.
      */
     @FXML
     private void initialize() {
-        // Obtém an array com nomes dos meses em Inglês.
+        // Get an array with the English month names.
         String[] months = DateFormatSymbols.getInstance(Locale.ENGLISH).getMonths();
-        // Converte o array em uma lista e adiciona em nossa ObservableList de meses.
+        // Convert it to a list and add it to our ObservableList of months.
         monthNames.addAll(Arrays.asList(months));
-
-        // Associa os nomes de mês como categorias para o eixo horizontal.
+        
+        // Assign the month names as categories for the horizontal axis.
         xAxis.setCategories(monthNames);
     }
 
@@ -49,7 +49,7 @@ public class BirthdayStatisticsController {
      * @param persons
      */
     public void setPersonData(List<Person> persons) {
-        // Conta o número de pessoas tendo seus aniversários em um mês específico.
+    	// Count the number of people having their birthday in a specific month.
         int[] monthCounter = new int[12];
         for (Person p : persons) {
             int month = p.getBirthday().getMonthValue() - 1;
@@ -57,12 +57,12 @@ public class BirthdayStatisticsController {
         }
 
         XYChart.Series<String, Integer> series = new XYChart.Series<>();
-
-        // Cria um objeto XYChart.Data para cada mês. Adiciona ele às séries.
+        
+        // Create a XYChart.Data object for each month. Add it to the series.
         for (int i = 0; i < monthCounter.length; i++) {
-            series.getData().add(new XYChart.Data<>(monthNames.get(i), monthCounter[i]));
+        	series.getData().add(new XYChart.Data<>(monthNames.get(i), monthCounter[i]));
         }
-
+        
         barChart.getData().add(series);
     }
 }
