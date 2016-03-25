@@ -28,7 +28,7 @@
 		
 		<mkdir dir="project" />
 		<copy todir="project">
-			<fileset dir="Q:\Eclipse Workspaces\JavaFX Tutorials\AddressApp-Part-7">
+			<fileset dir="C:\Users\leand\git\cadastrojavafx\AddressApp">
 				<include name="src/**" />
 			</fileset>
 		</copy>
